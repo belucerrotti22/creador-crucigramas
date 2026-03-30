@@ -1,0 +1,213 @@
+/* ── Configuración ──────────────────────────────────────────── */
+.sopa-config {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  background: var(--accent-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+}
+
+.sopa-config-fila {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-h);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+.sopa-config-hint {
+  font-size: 0.75rem;
+  font-weight: 400;
+  opacity: 0.5;
+}
+
+.sopa-config-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  input[type='range'] {
+    flex: 1;
+    accent-color: var(--accent);
+    cursor: pointer;
+    height: 4px;
+  }
+}
+
+.sopa-config-valor {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 40px;
+  text-align: right;
+}
+
+.sopa-config-toggle-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.sopa-config-toggle-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-h);
+  display: block;
+  margin-bottom: 2px;
+}
+
+.sopa-config-toggle-hint {
+  font-size: 0.75rem;
+  color: var(--text);
+  opacity: 0.6;
+  line-height: 1.4;
+  display: block;
+}
+
+/* ── Resultado ──────────────────────────────────────────────── */
+.sopa-resultado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  width: 100%;
+}
+
+.sopa-titulo-impresion {
+  margin: 0;
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-h);
+  align-self: flex-start;
+}
+
+/* ── Grilla ─────────────────────────────────────────────────── */
+.sopa-grilla {
+  display: grid;
+  grid-template-columns: repeat(var(--sopa-cols), 30px);
+  gap: 2px;
+  font-family: ui-monospace, Consolas, monospace;
+}
+
+.sopa-celda {
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  background: var(--bg);
+  box-sizing: border-box;
+  letter-spacing: 0;
+}
+
+/* En pantalla: resalta levemente las celdas con palabra */
+.sopa-celda-palabra {
+  color: var(--text-h);
+  font-weight: 800;
+}
+
+/* ── Lista de palabras ──────────────────────────────────────── */
+.sopa-palabras-lista {
+  width: 100%;
+  max-width: 700px;
+  align-self: flex-start;
+}
+
+.sopa-palabras-lista-titulo {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  opacity: 0.5;
+  margin: 0 0 10px;
+  color: var(--text-h);
+}
+
+.sopa-palabras-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sopa-palabra-chip {
+  padding: 4px 14px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-h);
+  letter-spacing: 0.05em;
+  background: var(--accent-bg);
+}
+
+/* ── Impresión ──────────────────────────────────────────────── */
+@media print {
+  .sopa-celda {
+    border-color: #999;
+    color: #000 !important;
+    font-weight: 600 !important; /* ocultar cuáles son las palabras */
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  .sopa-celda-palabra {
+    color: #000 !important;
+    font-weight: 600 !important;
+  }
+
+  .sopa-grilla {
+    gap: 1px;
+    grid-template-columns: repeat(var(--sopa-cols), 24px);
+  }
+
+  .sopa-celda {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+  }
+
+  .sopa-titulo-impresion {
+    font-size: 1.2rem;
+    margin-bottom: 4px;
+  }
+
+  .sopa-palabras-lista-titulo {
+    margin-top: 16px;
+  }
+
+  .sopa-palabra-chip {
+    border-color: #999;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 1.5cm;
+  }
+}
+
+/* ── Responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .sopa-grilla {
+    grid-template-columns: repeat(var(--sopa-cols), 24px);
+  }
+  .sopa-celda {
+    width: 24px;
+    height: 24px;
+    font-size: 0.65rem;
+  }
+}

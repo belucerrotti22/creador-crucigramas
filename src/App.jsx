@@ -1,10 +1,15 @@
 import { useState, useRef } from 'react'
 import { generarCrucigrama } from './crucigrama'
 import { useCrucigramasGuardados } from './useCrucigramasGuardados'
+import { encodeCrucigramaParaJuego } from './juego'
 import MisCrucigramas from './MisCrucigramas'
+import SopaLetras from './SopaLetras'
+import Wordle from './Wordle'
 import './App.css'
 
 function App() {
+  const [tab, setTab] = useState('crucigrama') // 'crucigrama' | 'sopa' | 'wordle'
+
   const [palabra, setPalabra] = useState('')
   const [palabras, setPalabras] = useState([])
   const [error, setError] = useState('')
@@ -16,9 +21,30 @@ function App() {
 
   const [imprimiendo, setImprimiendo] = useState(false)
   const [mostrarGuardados, setMostrarGuardados] = useState(false)
-  const [crucigramaActualId, setCrucigramaActualId] = useState(null) // id si está editando uno guardado
+  const [crucigramaActualId, setCrucigramaActualId] = useState(null)
   const [nombreCrucigrama, setNombreCrucigrama] = useState('')
   const printRef = useRef(null)
+
+  // ── Tamaño de celda ──────────────────────────────────────────
+  const [tamañoCelda, setTamañoCelda] = useState(36)
+
+  // ── Resaltado de palabra ─────────────────────────────────────
+  const [palabraResaltada, setPalabraResaltada] = useState(null)
+
+  // Calcula el set de claves "fila,col" que ocupa un placement
+  const celdasDePalabra = (placement) => {
+    const celdas = new Set()
+    for (let i = 0; i < placement.word.length; i++) {
+      const r = placement.horizontal ? placement.row : placement.row + i
+      const c = placement.horizontal ? placement.col + i : placement.col
+      celdas.add(`${r},${c}`)
+    }
+    return celdas
+  }
+
+  const celdasResaltadas = palabraResaltada !== null && crucigrama
+    ? celdasDePalabra(crucigrama.placements.find(pl => pl.originalIndex === palabraResaltada))
+    : new Set()
 
   // ── Opciones de impresión ────────────────────────────────────
   const [mostrarOpcionesImpresion, setMostrarOpcionesImpresion] = useState(false)
@@ -27,7 +53,7 @@ function App() {
     pistasHojaSeparada: true,
   })
 
-  const { guardados, guardar, actualizar, eliminar } = useCrucigramasGuardados()
+  const { guardados, guardar, actualizar, eliminar, duplicar } = useCrucigramasGuardados()
 
   // ── Agregar palabra ──────────────────────────────────────────
   const handleAgregar = () => {
@@ -133,6 +159,19 @@ function App() {
     setMostrarOpcionesImpresion(true)
   }
 
+  // ── Copiar link de juego ─────────────────────────────────────
+  const [linkCopiado, setLinkCopiado] = useState(false)
+
+  const handleCopiarLink = () => {
+    if (!crucigrama) return
+    const encoded = encodeCrucigramaParaJuego({ nombre: nombreCrucigrama, crucigrama, descripciones })
+    const url = `${window.location.origin}${window.location.pathname}?jugar=${encoded}`
+    navigator.clipboard.writeText(url).then(() => {
+      setLinkCopiado(true)
+      setTimeout(() => setLinkCopiado(false), 2500)
+    })
+  }
+
   const handleConfirmarImpresion = () => {
     setMostrarOpcionesImpresion(false)
     setImprimiendo(true)
@@ -144,6 +183,32 @@ function App() {
 
   return (
     <>
+    {/* ── Tabs ── */}
+    <div className="app-tabs no-print">
+      <button
+        className={`app-tab${tab === 'crucigrama' ? ' app-tab-activa' : ''}`}
+        onClick={() => setTab('crucigrama')}
+      >
+        🔤 Crucigrama
+      </button>
+      <button
+        className={`app-tab${tab === 'sopa' ? ' app-tab-activa' : ''}`}
+        onClick={() => setTab('sopa')}
+      >
+        🔍 Sopa de letras
+      </button>
+      <button
+        className={`app-tab${tab === 'wordle' ? ' app-tab-activa' : ''}`}
+        onClick={() => setTab('wordle')}
+      >
+        🟩 Wordle
+      </button>
+    </div>
+
+    {tab === 'sopa' && <SopaLetras />}
+    {tab === 'wordle' && <Wordle />}
+
+    {tab === 'crucigrama' && (
     <div className="app-wrapper">
 
       {/* ===== Panel izquierdo: controles ===== */}
@@ -221,7 +286,12 @@ function App() {
               .filter(({ originalIndex }) => crucigrama.wordNumbers[originalIndex] !== undefined)
               .sort((a, b) => crucigrama.wordNumbers[a.originalIndex] - crucigrama.wordNumbers[b.originalIndex])
               .map(({ palabra: p, originalIndex }) => (
-                <div key={originalIndex} className="descripcion-item">
+                <div
+                  key={originalIndex}
+                  className={`descripcion-item${palabraResaltada === originalIndex ? ' descripcion-item-activa' : ''}`}
+                  onMouseEnter={() => setPalabraResaltada(originalIndex)}
+                  onMouseLeave={() => setPalabraResaltada(null)}
+                >
                   <label>
                     <span className="desc-numero">{crucigrama.wordNumbers[originalIndex]}.</span> {p}
                   </label>
@@ -236,6 +306,9 @@ function App() {
 
             <button className="btn-imprimir" onClick={handleImprimir}>
               🖨️ Imprimir crucigrama
+            </button>
+            <button className="btn-copiar-link" onClick={handleCopiarLink}>
+              {linkCopiado ? '✅ ¡Link copiado!' : '🔗 Copiar link de juego'}
             </button>
             <button className="btn-guardar" onClick={handleGuardar}>
               {crucigramaActualId ? '💾 Guardar cambios' : '💾 Guardar crucigrama'}
@@ -258,29 +331,41 @@ function App() {
               {opcionesImpresion.titulo.trim() || nombreCrucigrama.trim() || 'Crucigrama'}
             </h2>
 
+            {/* Slider tamaño de celda */}
+            <div className="celda-slider no-print">
+              <span className="celda-slider-label">Tamaño</span>
+              <input
+                type="range"
+                min={20}
+                max={56}
+                step={2}
+                value={tamañoCelda}
+                onChange={e => setTamañoCelda(Number(e.target.value))}
+              />
+              <span className="celda-slider-valor">{tamañoCelda}px</span>
+            </div>
+
             {/* Grilla */}
             {(() => {
               const cols = crucigrama.grid[0]?.length || 1
-              // A4 portrait menos márgenes (1.5cm c/u) ≈ 190mm ≈ 718px
               const maxPrintWidth = 700
               const cellSize = imprimiendo
                 ? Math.min(36, Math.floor(maxPrintWidth / cols))
-                : 36
+                : tamañoCelda
               return (
                 <div
                   className="grilla"
-                  style={{
-                    gridTemplateColumns: `repeat(${cols}, ${cellSize}px)`,
-                  }}
+                  style={{ gridTemplateColumns: `repeat(${cols}, ${cellSize}px)` }}
                 >
                   {crucigrama.grid.map((fila, r) =>
                     fila.map((celda, c) => {
                       const key = `${r},${c}`
                       const numero = crucigrama.numberedCells[key]
+                      const resaltada = celdasResaltadas.has(key)
                       return (
                         <div
                           key={key}
-                          className={`celda ${celda ? 'celda-activa' : 'celda-vacia'}`}
+                          className={`celda ${celda ? 'celda-activa' : 'celda-vacia'}${resaltada ? ' celda-resaltada' : ''}`}
                           style={{ width: cellSize, height: cellSize }}
                         >
                           {celda && numero && <span className="celda-numero">{numero}</span>}
@@ -329,12 +414,14 @@ function App() {
         )}
       </main>
     </div>
+    )} {/* fin tab crucigrama */}
 
     {mostrarGuardados && (
       <MisCrucigramas
         guardados={guardados}
         onCargar={handleCargar}
         onEliminar={eliminar}
+        onDuplicar={duplicar}
         onCerrar={() => setMostrarGuardados(false)}
       />
     )}

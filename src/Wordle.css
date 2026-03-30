@@ -1,0 +1,331 @@
+/* ═══════════════════════════════════════════════════════════════
+   CREADOR
+   ═══════════════════════════════════════════════════════════════ */
+.wordle-creator-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 40px 20px;
+  min-height: calc(100svh - 52px); /* descontar tabs */
+  background: var(--bg);
+}
+
+.wordle-creator-card {
+  width: 100%;
+  max-width: 520px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.wordle-creator-subtitulo {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.wordle-creator-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  label {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--text-h);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    opacity: 0.7;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+}
+
+.wordle-creator-opcional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  opacity: 0.6;
+  font-size: 0.78rem;
+}
+
+.wordle-creator-requerido {
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.wordle-creator-input-palabra {
+  font-size: 1.3rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.15em !important;
+  text-transform: uppercase;
+}
+
+.wordle-creator-largo {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 700;
+  align-self: flex-end;
+}
+
+.wordle-creator-hint {
+  font-size: 0.75rem;
+  color: var(--text);
+  opacity: 0.55;
+  line-height: 1.4;
+}
+
+/* ── Slider intentos ── */
+.wordle-creator-slider {
+  accent-color: var(--accent);
+  cursor: pointer;
+  width: 100%;
+  height: 4px;
+}
+
+.wordle-creator-slider-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.72rem;
+  opacity: 0.4;
+  margin-top: 2px;
+}
+
+.wordle-creator-valor-intentos {
+  margin-left: auto;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--accent);
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+/* ── Preview ── */
+.wordle-preview {
+  background: var(--accent-bg);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wordle-preview-grilla {
+  display: grid;
+  grid-template-columns: repeat(var(--wlen), 36px);
+  grid-auto-rows: 36px;
+  gap: 4px;
+}
+
+.wordle-preview-celda {
+  width: 36px;
+  height: 36px;
+  border: 2px solid var(--border);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-sizing: border-box;
+  color: white;
+  text-transform: uppercase;
+}
+
+.wp-vacia  { background: transparent; border-color: var(--border); color: var(--text-h); }
+.wp-verde  { background: #22c55e; border-color: #22c55e; }
+.wp-amarillo { background: #eab308; border-color: #eab308; }
+
+.wordle-preview-mas {
+  grid-column: 1 / -1;
+  font-size: 0.75rem;
+  opacity: 0.45;
+  padding-top: 4px;
+}
+
+/* ── Botón ── */
+.wordle-creator-btn-disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════
+   JUEGO
+   ═══════════════════════════════════════════════════════════════ */
+.wjuego-wrapper {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+  outline: none;
+}
+
+.wjuego-input-oculto {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  pointer-events: none;
+}
+
+.wjuego-pista {
+  margin: 4px 0 0;
+  font-size: 0.88rem;
+  color: var(--text);
+  opacity: 0.7;
+}
+
+.wjuego-meta {
+  display: flex;
+  gap: 6px;
+  font-size: 0.8rem;
+  opacity: 0.45;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+/* ── Cuerpo ── */
+.wjuego-cuerpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+  padding: 28px 20px 40px;
+  flex: 1;
+}
+
+/* ── Grilla ── */
+.wjuego-grilla {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.wjuego-fila {
+  display: grid;
+  grid-template-columns: repeat(var(--wlen), 52px);
+  gap: 6px;
+}
+
+.wjuego-fila-shake {
+  animation: wShake 0.4s ease;
+}
+
+@keyframes wShake {
+  0%, 100% { transform: translateX(0); }
+  20%       { transform: translateX(-6px); }
+  40%       { transform: translateX(6px); }
+  60%       { transform: translateX(-4px); }
+  80%       { transform: translateX(4px); }
+}
+
+.wjuego-celda {
+  width: 52px;
+  height: 52px;
+  border: 2px solid var(--border);
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--text-h);
+  box-sizing: border-box;
+  text-transform: uppercase;
+  user-select: none;
+  transition: border-color 0.1s;
+  background: var(--bg);
+}
+
+.wjuego-celda-llena {
+  border-color: var(--accent-border);
+  transform: scale(1.05);
+  transition: transform 0.08s ease, border-color 0.1s;
+}
+
+.wjuego-celda-cursor {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-bg);
+}
+
+/* Celdas reveladas: flip animation */
+.wjuego-celda-revelada {
+  animation: wFlip 0.4s ease forwards;
+  animation-delay: inherit;
+}
+
+@keyframes wFlip {
+  0%   { transform: scaleY(1); }
+  50%  { transform: scaleY(0); }
+  100% { transform: scaleY(1); }
+}
+
+/* Estados de evaluación */
+.wc-correcta { background: #22c55e !important; border-color: #22c55e !important; color: white !important; }
+.wc-presente { background: #eab308 !important; border-color: #eab308 !important; color: white !important; }
+.wc-ausente  { background: #64748b !important; border-color: #64748b !important; color: white !important; }
+
+/* ── Teclado ── */
+.wjuego-teclado {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  width: 100%;
+  max-width: 500px;
+}
+
+.wjuego-teclado-fila {
+  display: flex;
+  justify-content: center;
+  gap: 5px;
+}
+
+.wjuego-tecla {
+  height: 56px;
+  min-width: 36px;
+  padding: 0 6px;
+  border-radius: 6px;
+  border: none;
+  background: var(--border);
+  color: var(--text-h);
+  font-size: 0.85rem;
+  font-weight: 700;
+  cursor: pointer;
+  flex: 1;
+  max-width: 42px;
+  transition: background 0.15s, color 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:active { transform: scale(0.93); }
+}
+
+.wjuego-tecla-ancha {
+  max-width: 64px;
+  font-size: 0.75rem;
+}
+
+/* Teclas evaluadas */
+.wjuego-tecla.wc-correcta { background: #22c55e; color: white; }
+.wjuego-tecla.wc-presente { background: #eab308; color: white; }
+.wjuego-tecla.wc-ausente  { background: #94a3b8; color: white; }
+
+/* ── Dark mode ── */
+@media (prefers-color-scheme: dark) {
+  .wjuego-celda { color: #f3f4f6; }
+  .wjuego-tecla { background: #2e303a; color: #f3f4f6; }
+  .wjuego-tecla.wc-ausente { background: #475569; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 480px) {
+  .wjuego-fila { grid-template-columns: repeat(var(--wlen), 42px); gap: 4px; }
+  .wjuego-celda { width: 42px; height: 42px; font-size: 1.1rem; }
+  .wjuego-tecla { height: 48px; font-size: 0.78rem; }
+}

@@ -1,3 +1,35 @@
+/* ── Tabs ────────────────────────────────────────────────────── */
+.app-tabs {
+  display: flex;
+  border-bottom: 2px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 24px;
+}
+
+.app-tab {
+  padding: 14px 22px;
+  border: none;
+  background: transparent;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.2s, border-color 0.2s;
+  white-space: nowrap;
+
+  &:hover { color: var(--text-h); }
+}
+
+.app-tab-activa {
+  color: var(--accent);
+  border-bottom-color: var(--accent);
+}
+
 /* ── Layout general ─────────────────────────────────────────── */
 .app-wrapper {
   display: flex;
@@ -307,6 +339,25 @@
   flex-shrink: 0;
 }
 
+/* ── Botón copiar link de juego ─────────────────────────────── */
+.btn-copiar-link {
+  width: 100%;
+  padding: 11px;
+  border-radius: 12px;
+  border: 2px solid var(--accent);
+  background: transparent;
+  color: var(--accent);
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+
+  &:hover {
+    background: var(--accent);
+    color: white;
+  }
+}
+
 /* ── Botón guardar ──────────────────────────────────────────── */
 .btn-guardar {
   width: 100%;
@@ -595,6 +646,57 @@
   transition: opacity 0.2s, transform 0.1s;
   &:hover { opacity: 0.9; transform: translateY(-1px); }
   &:active { transform: translateY(0); }
+}
+
+/* ── Slider tamaño de celda ─────────────────────────────────── */
+.celda-slider {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 320px;
+}
+
+.celda-slider-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  opacity: 0.5;
+  white-space: nowrap;
+  color: var(--text-h);
+}
+
+.celda-slider-valor {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--accent);
+  min-width: 32px;
+  text-align: right;
+}
+
+.celda-slider input[type='range'] {
+  flex: 1;
+  accent-color: var(--accent);
+  cursor: pointer;
+  height: 4px;
+}
+
+/* ── Celda resaltada ────────────────────────────────────────── */
+.celda-resaltada {
+  background: rgba(170, 59, 255, 0.22) !important;
+  border-color: var(--accent) !important;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+/* ── Descripcion-item hover activo ──────────────────────────── */
+.descripcion-item-activa label {
+  color: var(--accent);
+}
+
+.descripcion-item-activa .desc-numero {
+  background: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-bg);
 }
 
 /* ── Impresión ──────────────────────────────────────────────── */
