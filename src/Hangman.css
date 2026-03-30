@@ -170,7 +170,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 40px 16px 60px;
+  padding: 24px 16px 48px;
   min-height: 100svh;
   background: var(--bg);
 }
@@ -180,7 +180,7 @@
   max-width: 760px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .hangman-pista {
@@ -188,15 +188,13 @@
   font-size: 0.95rem;
   color: var(--text);
   opacity: 0.72;
-  margin-bottom: 4px;
 }
 
-/* Layout principal del juego */
+/* Layout principal: horca a la izq, contenido a la der */
 .hangman-juego-main {
   display: flex;
-  gap: 32px;
+  gap: 24px;
   align-items: flex-start;
-  flex-wrap: wrap;
 }
 
 /* ── Columna izquierda: dibujo ── */
@@ -204,13 +202,13 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  min-width: 160px;
+  gap: 6px;
+  flex-shrink: 0;
 }
 
 .hangman-svg {
-  width: 160px;
-  height: 170px;
+  width: 130px;
+  height: 138px;
   color: var(--text-h);
 }
 
@@ -218,6 +216,7 @@
   font-size: 0.82rem;
   opacity: 0.6;
   font-weight: 600;
+  white-space: nowrap;
 }
 
 .hangman-errores-maximo {
@@ -229,17 +228,17 @@
 /* ── Columna derecha: palabra + teclado ── */
 .hangman-juego-der {
   flex: 1;
-  min-width: 280px;
+  min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 /* ── Palabra ── */
 .hangman-palabra {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
   align-items: flex-end;
 }
 
@@ -247,10 +246,10 @@
   display: inline-flex;
   align-items: flex-end;
   justify-content: center;
-  width: 32px;
-  min-height: 40px;
+  width: clamp(22px, 7vw, 34px);
+  min-height: clamp(28px, 9vw, 42px);
   border-bottom: 3px solid var(--text-h);
-  font-size: 1.3rem;
+  font-size: clamp(0.9rem, 4vw, 1.3rem);
   font-weight: 800;
   color: var(--text-h);
   padding-bottom: 2px;
@@ -260,7 +259,7 @@
 
 .hangman-letra-sep {
   border-bottom: none;
-  width: 14px;
+  width: clamp(8px, 3vw, 14px);
   font-size: 1rem;
   opacity: 0.5;
 }
@@ -275,6 +274,7 @@
   color: #e74c3c;
   font-weight: 600;
   letter-spacing: 0.05em;
+  word-break: break-all;
 }
 
 .hangman-incorrectas-label {
@@ -287,7 +287,7 @@
 .hangman-resultado {
   padding: 14px 18px;
   border-radius: 12px;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
   display: flex;
   flex-direction: column;
@@ -336,6 +336,7 @@
   cursor: pointer;
   color: var(--text-h);
   transition: background 0.15s;
+  touch-action: manipulation;
 }
 
 .hangman-btn-reintentar:hover {
@@ -348,23 +349,23 @@
 .hangman-teclado {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
+  width: 100%;
 }
 
 .hangman-teclado-fila {
   display: flex;
-  gap: 5px;
-  flex-wrap: wrap;
+  gap: clamp(3px, 1vw, 5px);
 }
 
 .hangman-tecla {
-  width: 38px;
-  height: 42px;
+  flex: 1;
+  height: clamp(36px, 10vw, 44px);
   border-radius: 7px;
   border: 1.5px solid var(--border);
   background: var(--surface);
   color: var(--text-h);
-  font-size: 0.9rem;
+  font-size: 16px; /* mínimo 16px para evitar zoom en iOS */
   font-weight: 700;
   cursor: pointer;
   transition: background 0.12s, color 0.12s, transform 0.08s;
@@ -372,6 +373,10 @@
   align-items: center;
   justify-content: center;
   user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  padding: 0;
+  min-width: 0;
 }
 
 .hangman-tecla:hover:not(:disabled) {
@@ -400,33 +405,35 @@
   opacity: 0.55;
 }
 
-/* ── Responsivo ── */
-@media (max-width: 520px) {
+/* ── Mobile: horca arriba, todo abajo ── */
+@media (max-width: 480px) {
   .hangman-juego-main {
     flex-direction: column;
-    align-items: center;
+    align-items: stretch;
+    gap: 16px;
   }
 
   .hangman-juego-izq {
     flex-direction: row;
-    min-width: unset;
-    width: 100%;
+    align-items: center;
     justify-content: center;
+    gap: 16px;
   }
 
   .hangman-svg {
-    width: 120px;
-    height: 128px;
+    width: 90px;
+    height: 96px;
   }
 
-  .hangman-tecla {
-    width: 32px;
-    height: 36px;
-    font-size: 0.78rem;
+  .hangman-palabra {
+    justify-content: center;
   }
 
-  .hangman-letra-caja {
-    width: 26px;
-    font-size: 1.1rem;
+  .hangman-incorrectas {
+    text-align: center;
+  }
+
+  .hangman-teclado {
+    margin-top: 12px;
   }
 }
