@@ -154,7 +154,7 @@
 }
 
 
-/* ═══════════════════════════════════════════════════════════════
+/* ══════════════════════════════════════════════════════════════
    JUEGO
    ═══════════════════════════════════════════════════════════════ */
 .wjuego-wrapper {
@@ -189,13 +189,37 @@
   flex-shrink: 0;
 }
 
+/* Mensajes de estado */
+.juego-msg {
+  margin: 0;
+  padding: 10px 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+}
+.juego-msg-ok    { color: #16a34a; background: #dcfce7; }
+.juego-msg-error { color: #b91c1c; background: #fee2e2; }
+.juego-msg-warn  { color: #92400e; background: #fef3c7; }
+
+@media (prefers-color-scheme: dark) {
+  .juego-msg-ok    { color: #86efac; background: #14532d33; }
+  .juego-msg-error { color: #fca5a5; background: #7f1d1d33; }
+  .juego-msg-warn  { color: #fcd34d; background: #78350f33; }
+}
+
+/* Responsive header */
+@media (max-width: 480px) {
+  .juego-header { padding: 14px 16px; }
+  .juego-titulo { font-size: 1.15rem; }
+}
+
 /* ── Cuerpo ── */
 .wjuego-cuerpo {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 28px;
-  padding: 28px 20px 40px;
+  gap: 20px;
+  padding: 16px 12px 32px;
   flex: 1;
 }
 
@@ -203,13 +227,16 @@
 .wjuego-grilla {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: clamp(3px, 1vw, 6px);
+  width: 100%;
+  max-width: min(calc(var(--wlen) * 58px + (var(--wlen) - 1) * 6px), 92vw);
 }
 
 .wjuego-fila {
   display: grid;
-  grid-template-columns: repeat(var(--wlen), 52px);
-  gap: 6px;
+  /* celda: mínimo 32px, ideal 52px pero cabe en el ancho disponible */
+  grid-template-columns: repeat(var(--wlen), minmax(0, 1fr));
+  gap: clamp(3px, 1vw, 6px);
 }
 
 .wjuego-fila-shake {
@@ -225,14 +252,13 @@
 }
 
 .wjuego-celda {
-  width: 52px;
-  height: 52px;
+  aspect-ratio: 1;
   border: 2px solid var(--border);
   border-radius: 6px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.4rem;
+  font-size: clamp(0.9rem, 4vw, 1.4rem);
   font-weight: 900;
   color: var(--text-h);
   box-sizing: border-box;
@@ -274,41 +300,45 @@
 .wjuego-teclado {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 5px;
   width: 100%;
   max-width: 500px;
+  padding: 0 4px;
+  box-sizing: border-box;
 }
 
 .wjuego-teclado-fila {
   display: flex;
   justify-content: center;
-  gap: 5px;
+  gap: clamp(3px, 1vw, 5px);
 }
 
 .wjuego-tecla {
-  height: 56px;
-  min-width: 36px;
-  padding: 0 6px;
+  height: clamp(42px, 10vw, 56px);
+  min-width: 0;
+  padding: 0;
   border-radius: 6px;
   border: none;
   background: var(--border);
   color: var(--text-h);
-  font-size: 0.85rem;
+  font-size: clamp(0.7rem, 2.5vw, 0.85rem);
   font-weight: 700;
   cursor: pointer;
   flex: 1;
-  max-width: 42px;
   transition: background 0.15s, color 0.15s, transform 0.1s;
   display: flex;
   align-items: center;
   justify-content: center;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 
   &:active { transform: scale(0.93); }
 }
 
 .wjuego-tecla-ancha {
-  max-width: 64px;
-  font-size: 0.75rem;
+  flex: 1.6;
+  font-size: clamp(0.6rem, 2vw, 0.75rem);
 }
 
 /* Teclas evaluadas */
@@ -324,8 +354,12 @@
 }
 
 /* ── Responsive ── */
-@media (max-width: 480px) {
-  .wjuego-fila { grid-template-columns: repeat(var(--wlen), 42px); gap: 4px; }
-  .wjuego-celda { width: 42px; height: 42px; font-size: 1.1rem; }
-  .wjuego-tecla { height: 48px; font-size: 0.78rem; }
+@media (max-width: 380px) {
+  .wjuego-cuerpo { gap: 14px; padding: 12px 8px 24px; }
+  .wjuego-tecla { border-radius: 4px; }
+}
+
+/* Evitar zoom en iOS al tocar botones (font-size mínimo 16px) */
+@media (hover: none) and (pointer: coarse) {
+  .wjuego-tecla { font-size: 16px; }
 }

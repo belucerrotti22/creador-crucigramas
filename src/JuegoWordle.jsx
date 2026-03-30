@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import './JuegoCrucigrama.css'
 import './Wordle.css'
 
 const ESTADO = { VACIA: 'vacia', CORRECTA: 'correcta', PRESENTE: 'presente', AUSENTE: 'ausente' }
@@ -60,7 +61,7 @@ export default function JuegoWordle({ nombre, palabra, pista, intentos: maxInten
   const [errorMsg, setErrorMsg] = useState('')
   const [shake, setShake] = useState(false)
 
-  // ── Input físico ─────────────────────────────────────────────
+  // ── Foco al montar (para teclado físico en desktop) ─────────
   const inputRef = useRef(null)
   useEffect(() => { inputRef.current?.focus() }, [])
 
@@ -134,14 +135,7 @@ export default function JuegoWordle({ nombre, palabra, pista, intentos: maxInten
   }
 
   return (
-    <div className="wjuego-wrapper" onClick={() => inputRef.current?.focus()}>
-      {/* Input oculto para capturar teclado físico en móvil */}
-      <input
-        ref={inputRef}
-        className="wjuego-input-oculto"
-        readOnly
-        onKeyDown={() => {}}
-      />
+    <div className="wjuego-wrapper" tabIndex={0} ref={inputRef} style={{ outline: 'none' }}>
 
       <header className="juego-header">
         <div>
