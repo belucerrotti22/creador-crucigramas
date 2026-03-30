@@ -5,10 +5,11 @@ import { encodeCrucigramaParaJuego } from './juego'
 import MisCrucigramas from './MisCrucigramas'
 import SopaLetras from './SopaLetras'
 import Wordle from './Wordle'
+import Hangman from './Hangman'
 import './App.css'
 
 function App() {
-  const [tab, setTab] = useState('crucigrama') // 'crucigrama' | 'sopa' | 'wordle'
+  const [tab, setTab] = useState('crucigrama') // 'crucigrama' | 'sopa' | 'wordle' | 'hangman'
 
   const [palabra, setPalabra] = useState('')
   const [palabras, setPalabras] = useState([])
@@ -203,10 +204,17 @@ function App() {
       >
         🟩 Wordle
       </button>
+      <button
+        className={`app-tab${tab === 'hangman' ? ' app-tab-activa' : ''}`}
+        onClick={() => setTab('hangman')}
+      >
+        🪢 Ahorcado
+      </button>
     </div>
 
     {tab === 'sopa' && <SopaLetras />}
     {tab === 'wordle' && <Wordle />}
+    {tab === 'hangman' && <Hangman />}
 
     {tab === 'crucigrama' && (
     <div className="app-wrapper">

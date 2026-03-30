@@ -67,3 +67,18 @@ export function decodeWordleDeJuego(encoded) {
     return null
   }
 }
+
+// ── Ahorcado ─────────────────────────────────────────────────────
+
+export function encodeAhorcadoParaJuego({ nombre, palabra, pista, intentos }) {
+  return b64encode({ n: nombre || 'Ahorcado', p: palabra.toUpperCase(), h: pista || '', i: intentos })
+}
+
+export function decodeAhorcadoDeJuego(encoded) {
+  try {
+    const payload = b64decode(encoded)
+    return { nombre: payload.n, palabra: payload.p, pista: payload.h, intentos: payload.i }
+  } catch {
+    return null
+  }
+}
