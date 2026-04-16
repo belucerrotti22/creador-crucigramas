@@ -1,5 +1,7 @@
 import { useState, useRef } from 'react'
 import { encodeCuestionarioParaJuego } from './juego'
+import { useCuestionariosGuardados } from './useCrucigramasGuardados'
+import MisCrucigramas from './MisCrucigramas'
 import './Cuestionario.css'
 
 // ── Parser CSV ───────────────────────────────────────────────────
@@ -212,6 +214,11 @@ export default function Cuestionario() {
   const [csvMsg, setCsvMsg] = useState(null) // { tipo: 'ok'|'error', texto: string }
   const csvInputRef = useRef(null)
 
+  // ── Guardados ────────────────────────────────────────────────
+  const [mostrarGuardados, setMostrarGuardados] = useState(false)
+  const [cuestionarioActualId, setCuestionarioActualId] = useState(null)
+  const { guardados, guardar, actualizar, eliminar, duplicar } = useCuestionariosGuardados()
+
   const handleAgregarPregunta = (nueva) => {
     setPreguntas(prev => [...prev, nueva])
   }
@@ -233,6 +240,37 @@ export default function Cuestionario() {
     const nuevas = [...preguntas]
     ;[nuevas[i], nuevas[i + 1]] = [nuevas[i + 1], nuevas[i]]
     setPreguntas(nuevas)
+  }
+
+  // ── Guardar / Cargar / Nuevo ─────────────────────────────────
+  const handleGuardar = () => {
+    if (preguntas.length === 0) return
+    // palabras se usa como metadata de búsqueda en el listado
+    const datos = { nombre, preguntas, palabras: preguntas.map(p => p.pregunta) }
+    if (cuestionarioActualId) {
+      actualizar(cuestionarioActualId, datos)
+    } else {
+      const id = guardar(datos)
+      setCuestionarioActualId(id)
+    }
+  }
+
+  const handleCargar = (guardado) => {
+    setNombre(guardado.nombre || '')
+    setPreguntas(guardado.preguntas)
+    setCuestionarioActualId(guardado.id)
+    setMostrarGuardados(false)
+    setPreguntaExpandida(null)
+    setErrorLink('')
+  }
+
+  const handleNuevo = () => {
+    setNombre('')
+    setPreguntas([])
+    setCuestionarioActualId(null)
+    setPreguntaExpandida(null)
+    setErrorLink('')
+    setCsvMsg(null)
   }
 
   const handleCsvImport = (e) => {
@@ -276,11 +314,22 @@ export default function Cuestionario() {
   }
 
   return (
+    <>
     <div className="cuest-wrapper">
       <div className="cuest-card">
 
         <div className="cuest-header">
-          <h1 className="titulo">Cuestionario</h1>
+          <div className="cuest-header-top">
+            <h1 className="titulo">Cuestionario</h1>
+            <div className="cuest-top-acciones">
+              <button className="cuest-btn-top" onClick={() => setMostrarGuardados(true)} title="Mis cuestionarios">
+                📂 <span>{guardados.length}</span>
+              </button>
+              <button className="cuest-btn-top" onClick={handleNuevo} title="Nuevo cuestionario">
+                ➕ Nuevo
+              </button>
+            </div>
+          </div>
           <p className="cuest-subtitulo">
             Creá un cuestionario multiple choice y compartí el link para que otros lo respondan
           </p>
@@ -416,6 +465,9 @@ export default function Cuestionario() {
               <button className="cuest-btn-link" onClick={handleCopiarLink}>
                 {linkCopiado ? '✅ ¡Link copiado!' : '🔗 Generar y copiar link del cuestionario'}
               </button>
+              <button className="cuest-btn-guardar" onClick={handleGuardar}>
+                {cuestionarioActualId ? '💾 Guardar cambios' : '💾 Guardar cuestionario'}
+              </button>
               <p className="cuest-hint-link">
                 El link incluye todas las preguntas y respuestas correctas. Quienes lo abran podrán responder el cuestionario.
               </p>
@@ -425,5 +477,19 @@ export default function Cuestionario() {
 
       </div>
     </div>
+
+    {mostrarGuardados && (
+      <MisCrucigramas
+        guardados={guardados}
+        onCargar={handleCargar}
+        onEliminar={eliminar}
+        onDuplicar={duplicar}
+        onCerrar={() => setMostrarGuardados(false)}
+        titulo="📂 Mis cuestionarios"
+        mensajeVacio="Todavía no guardaste ningún cuestionario."
+        itemLabel="preguntas"
+      />
+    )}
+    </>
   )
 }

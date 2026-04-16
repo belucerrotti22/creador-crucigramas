@@ -1,19 +1,23 @@
 /**
  * Utilidades para codificar/decodificar datos para juegos en la URL.
- * Usa Base64 con TextEncoder para soportar unicode.
+ * Usa lz-string para comprimir + Base64 URL-safe, soportando unicode.
  */
 
-// ── Helpers Base64 ───────────────────────────────────────────────
+import LZString from 'lz-string'
+
+// ── Helpers Base64 (con compresión lz-string) ────────────────────
 
 function b64encode(obj) {
   const json = JSON.stringify(obj)
-  const bytes = new TextEncoder().encode(json)
-  let binary = ''
-  bytes.forEach(b => (binary += String.fromCharCode(b)))
-  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+  return LZString.compressToEncodedURIComponent(json)
 }
 
 function b64decode(encoded) {
+  // Intentar descompresión lz-string primero
+  const json = LZString.decompressFromEncodedURIComponent(encoded)
+  if (json) return JSON.parse(json)
+
+  // Fallback: Base64 manual (para links generados antes de la actualización)
   const base64 = encoded.replace(/-/g, '+').replace(/_/g, '/')
   const binary = atob(base64)
   const bytes = Uint8Array.from(binary, ch => ch.charCodeAt(0))

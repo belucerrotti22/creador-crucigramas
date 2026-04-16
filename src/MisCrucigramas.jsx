@@ -5,6 +5,7 @@ export default function MisCrucigramas({
   guardados, onCargar, onEliminar, onDuplicar, onCerrar,
   titulo = '📂 Mis Crucigramas',
   mensajeVacio = 'Todavía no guardaste ningún crucigrama.',
+  itemLabel = 'palabras',
 }) {
   const [busqueda, setBusqueda] = useState('')
 
@@ -54,7 +55,7 @@ export default function MisCrucigramas({
                     <div className="mis-info">
                       <span className="mis-nombre">{g.nombre}</span>
                       <span className="mis-meta">
-                        {g.palabras.length} palabras · {g.fecha}
+                        {g.palabras.length} {itemLabel} · {g.fecha}
                       </span>
                       <div className="mis-chips">
                         {g.palabras.slice(0, 5).map((p, i) => (

@@ -71,3 +71,7 @@ export function useCrucigramasGuardados() {
 export function useSopasGuardadas() {
   return useItemsGuardados('sopas_guardadas', 'Sopa de letras')
 }
+
+export function useCuestionariosGuardados() {
+  return useItemsGuardados('cuestionarios_guardados', 'Cuestionario')
+}
