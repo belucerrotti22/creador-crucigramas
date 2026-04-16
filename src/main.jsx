@@ -5,17 +5,20 @@ import App from './App.jsx'
 import JuegoCrucigrama from './JuegoCrucigrama.jsx'
 import JuegoWordle from './JuegoWordle.jsx'
 import JuegoHangman from './JuegoHangman.jsx'
-import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego } from './juego.js'
+import JuegoCuestionario from './JuegoCuestionario.jsx'
+import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego } from './juego.js'
 
 const params = new URLSearchParams(window.location.search)
 
-const encodedCrucigrama = params.get('jugar')
-const encodedWordle     = params.get('wordle')
-const encodedAhorcado   = params.get('ahorcado')
+const encodedCrucigrama   = params.get('jugar')
+const encodedWordle       = params.get('wordle')
+const encodedAhorcado     = params.get('ahorcado')
+const encodedCuestionario = params.get('cuestionario')
 
-const datosCrucigrama = encodedCrucigrama ? decodeCrucigramaDeJuego(encodedCrucigrama) : null
-const datosWordle     = encodedWordle     ? decodeWordleDeJuego(encodedWordle)         : null
-const datosAhorcado   = encodedAhorcado   ? decodeAhorcadoDeJuego(encodedAhorcado)     : null
+const datosCrucigrama   = encodedCrucigrama   ? decodeCrucigramaDeJuego(encodedCrucigrama)       : null
+const datosWordle       = encodedWordle       ? decodeWordleDeJuego(encodedWordle)               : null
+const datosAhorcado     = encodedAhorcado     ? decodeAhorcadoDeJuego(encodedAhorcado)           : null
+const datosCuestionario = encodedCuestionario ? decodeCuestionarioDeJuego(encodedCuestionario)   : null
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -41,6 +44,11 @@ createRoot(document.getElementById('root')).render(
         palabra={datosAhorcado.palabra}
         pista={datosAhorcado.pista}
         intentos={datosAhorcado.intentos}
+      />
+    ) : datosCuestionario ? (
+      <JuegoCuestionario
+        nombre={datosCuestionario.nombre}
+        preguntas={datosCuestionario.preguntas}
       />
     ) : (
       <App />

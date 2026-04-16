@@ -82,3 +82,36 @@ export function decodeAhorcadoDeJuego(encoded) {
     return null
   }
 }
+
+// ── Cuestionario ─────────────────────────────────────────────────
+
+/**
+ * preguntas: Array de { pregunta, opciones: string[], correctas: number[] }
+ * nombre: string
+ */
+export function encodeCuestionarioParaJuego({ nombre, preguntas }) {
+  return b64encode({
+    n: nombre || 'Cuestionario',
+    q: preguntas.map(p => ({
+      p: p.pregunta,
+      o: p.opciones,
+      c: p.correctas,
+    })),
+  })
+}
+
+export function decodeCuestionarioDeJuego(encoded) {
+  try {
+    const payload = b64decode(encoded)
+    return {
+      nombre: payload.n,
+      preguntas: payload.q.map(p => ({
+        pregunta: p.p,
+        opciones: p.o,
+        correctas: p.c,
+      })),
+    }
+  } catch {
+    return null
+  }
+}
