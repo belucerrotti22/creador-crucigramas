@@ -167,7 +167,7 @@ function App() {
   const handleCopiarLink = () => {
     if (!crucigrama) return
     const encoded = encodeCrucigramaParaJuego({ nombre: nombreCrucigrama, crucigrama, descripciones })
-    const url = `${window.location.origin}${window.location.pathname}?jugar=${encoded}`
+    const url = `${window.location.origin}${window.location.pathname}#jugar=${encoded}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopiado(true)
       setTimeout(() => setLinkCopiado(false), 2500)

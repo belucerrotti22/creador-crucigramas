@@ -22,7 +22,7 @@ export default function Wordle() {
     setError('')
 
     const encoded = encodeWordleParaJuego({ nombre, palabra: p, pista, intentos })
-    const url = `${window.location.origin}${window.location.pathname}?wordle=${encoded}`
+    const url = `${window.location.origin}${window.location.pathname}#wordle=${encoded}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopiado(true)
       setTimeout(() => setLinkCopiado(false), 2500)

@@ -60,7 +60,7 @@ export default function Hangman() {
     setError('')
 
     const encoded = encodeAhorcadoParaJuego({ nombre, palabra: p, pista, intentos })
-    const url = `${window.location.origin}${window.location.pathname}?ahorcado=${encoded}`
+    const url = `${window.location.origin}${window.location.pathname}#ahorcado=${encoded}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopiado(true)
       setTimeout(() => setLinkCopiado(false), 2500)

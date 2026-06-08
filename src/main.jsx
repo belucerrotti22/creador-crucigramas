@@ -8,12 +8,20 @@ import JuegoHangman from './JuegoHangman.jsx'
 import JuegoCuestionario from './JuegoCuestionario.jsx'
 import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego } from './juego.js'
 
-const params = new URLSearchParams(window.location.search)
+// Lee un parámetro del hash (#key=valor) con fallback al query string para links viejos
+function getParam(key) {
+  const hash = window.location.hash.slice(1)  // elimina el '#'
+  const eqIdx = hash.indexOf('=')
+  if (eqIdx !== -1 && hash.slice(0, eqIdx) === key) {
+    return hash.slice(eqIdx + 1)
+  }
+  return new URLSearchParams(window.location.search).get(key)
+}
 
-const encodedCrucigrama   = params.get('jugar')
-const encodedWordle       = params.get('wordle')
-const encodedAhorcado     = params.get('ahorcado')
-const encodedCuestionario = params.get('cuestionario')
+const encodedCrucigrama   = getParam('jugar')
+const encodedWordle       = getParam('wordle')
+const encodedAhorcado     = getParam('ahorcado')
+const encodedCuestionario = getParam('cuestionario')
 
 const datosCrucigrama   = encodedCrucigrama   ? decodeCrucigramaDeJuego(encodedCrucigrama)       : null
 const datosWordle       = encodedWordle       ? decodeWordleDeJuego(encodedWordle)               : null

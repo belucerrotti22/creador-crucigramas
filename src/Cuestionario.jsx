@@ -306,7 +306,7 @@ export default function Cuestionario() {
     }
     setErrorLink('')
     const encoded = encodeCuestionarioParaJuego({ nombre, preguntas })
-    const url = `${window.location.origin}${window.location.pathname}?cuestionario=${encoded}`
+    const url = `${window.location.origin}${window.location.pathname}#cuestionario=${encoded}`
     navigator.clipboard.writeText(url).then(() => {
       setLinkCopiado(true)
       setTimeout(() => setLinkCopiado(false), 2500)
