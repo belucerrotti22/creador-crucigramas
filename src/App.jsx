@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { generarCrucigrama } from './crucigrama'
 import { useCrucigramasGuardados } from './useCrucigramasGuardados'
 import { encodeCrucigramaParaJuego } from './juego'
@@ -9,8 +9,30 @@ import Hangman from './Hangman'
 import Cuestionario from './Cuestionario'
 import './App.css'
 
+const TABS = ['crucigrama', 'sopa', 'wordle', 'hangman', 'cuestionario']
+
+function tabFromHash() {
+  const hash = window.location.hash.slice(1)
+  // Solo usar el hash como tab si no contiene '=' (los links de juego usan #key=value)
+  return TABS.includes(hash) ? hash : 'crucigrama'
+}
+
 function App() {
-  const [tab, setTab] = useState('crucigrama') // 'crucigrama' | 'sopa' | 'wordle' | 'hangman' | 'cuestionario'
+  const [tab, setTab] = useState(tabFromHash) // 'crucigrama' | 'sopa' | 'wordle' | 'hangman' | 'cuestionario'
+
+  // Sincronizar la URL al cambiar de tab
+  const navegarTab = (nuevaTab) => {
+    const hash = nuevaTab === 'crucigrama' ? '' : `#${nuevaTab}`
+    history.pushState({ tab: nuevaTab }, '', `${window.location.pathname}${hash}`)
+    setTab(nuevaTab)
+  }
+
+  // Escuchar el botón atrás/adelante del navegador
+  useEffect(() => {
+    const onPop = () => setTab(tabFromHash())
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
 
   const [palabra, setPalabra] = useState('')
   const [palabras, setPalabras] = useState([])
@@ -189,31 +211,31 @@ function App() {
     <div className="app-tabs no-print">
       <button
         className={`app-tab${tab === 'crucigrama' ? ' app-tab-activa' : ''}`}
-        onClick={() => setTab('crucigrama')}
+        onClick={() => navegarTab('crucigrama')}
       >
         🔤 Crucigrama
       </button>
       <button
         className={`app-tab${tab === 'sopa' ? ' app-tab-activa' : ''}`}
-        onClick={() => setTab('sopa')}
+        onClick={() => navegarTab('sopa')}
       >
         🔍 Sopa de letras
       </button>
       <button
         className={`app-tab${tab === 'wordle' ? ' app-tab-activa' : ''}`}
-        onClick={() => setTab('wordle')}
+        onClick={() => navegarTab('wordle')}
       >
         🟩 Wordle
       </button>
       <button
         className={`app-tab${tab === 'hangman' ? ' app-tab-activa' : ''}`}
-        onClick={() => setTab('hangman')}
+        onClick={() => navegarTab('hangman')}
       >
         🪢 Ahorcado
       </button>
       <button
         className={`app-tab${tab === 'cuestionario' ? ' app-tab-activa' : ''}`}
-        onClick={() => setTab('cuestionario')}
+        onClick={() => navegarTab('cuestionario')}
       >
         📋 Cuestionario
       </button>
