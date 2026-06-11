@@ -5,7 +5,7 @@ import MisCrucigramas from './MisCrucigramas'
 import './VerdaderoFalso.css'
 
 // ── Parser CSV ────────────────────────────────────────────────────
-// Formato: Pregunta, Respuesta (verdadero/falso / true/false / v/f / 1/0)
+// Formato: Pregunta, Respuesta[, Explicación (opcional)]
 function parsearCSV(texto) {
   const lineas = texto.split(/\r?\n/).filter(l => l.trim())
   if (lineas.length < 2) throw new Error('El archivo no tiene preguntas')
@@ -37,7 +37,8 @@ function parsearCSV(texto) {
       return
     }
 
-    preguntas.push({ pregunta, respuesta })
+    const explicacion = cols[2] ? cols[2].trim() : ''
+    preguntas.push({ pregunta, respuesta, explicacion })
   })
 
   return { preguntas, errores }
@@ -95,7 +96,8 @@ function parsearJSON(texto) {
       return
     }
 
-    preguntas.push({ pregunta, respuesta })
+    const explicacion = (item.explicacion || item.explanation || item.descripcion || item.description || '').toString().trim()
+    preguntas.push({ pregunta, respuesta, explicacion })
   })
 
   return { preguntas, errores }
@@ -105,6 +107,7 @@ function parsearJSON(texto) {
 function PreguntaVFForm({ onAgregar }) {
   const [pregunta, setPregunta] = useState('')
   const [respuesta, setRespuesta] = useState(null) // true | false | null
+  const [explicacion, setExplicacion] = useState('')
   const [error, setError] = useState('')
 
   const handleAgregar = () => {
@@ -112,9 +115,10 @@ function PreguntaVFForm({ onAgregar }) {
     if (!p) { setError('Escribí el enunciado de la pregunta'); return }
     if (respuesta === null) { setError('Indicá si la afirmación es Verdadera o Falsa'); return }
     setError('')
-    onAgregar({ pregunta: p, respuesta })
+    onAgregar({ pregunta: p, respuesta, explicacion: explicacion.trim() })
     setPregunta('')
     setRespuesta(null)
+    setExplicacion('')
   }
 
   return (
@@ -151,6 +155,20 @@ function PreguntaVFForm({ onAgregar }) {
             ✘ Falso
           </button>
         </div>
+      </div>
+
+      <div className="vf-campo">
+        <label>
+          <span className="vf-label-text">Explicación al responder mal</span>
+          <span className="vf-opcional"> (opcional)</span>
+        </label>
+        <textarea
+          className="vf-textarea"
+          placeholder="Ej: En realidad, el agua hierve a 100°C al nivel del mar porque…"
+          value={explicacion}
+          onChange={e => setExplicacion(e.target.value)}
+          rows={2}
+        />
       </div>
 
       {error && <p className="vf-error">{error}</p>}
@@ -345,8 +363,9 @@ export default function VerdaderoFalso() {
           {tabImport === 'csv' && (
             <div className="vf-import-body">
               <p className="vf-import-hint">
-                Formato: <code>Enunciado, Respuesta</code><br />
-                Respuesta: <code>verdadero</code>/<code>falso</code>, <code>true</code>/<code>false</code>, <code>V</code>/<code>F</code>, <code>1</code>/<code>0</code>
+                Formato: <code>Enunciado, Respuesta[, Explicación]</code><br />
+                Respuesta: <code>verdadero</code>/<code>falso</code>, <code>true</code>/<code>false</code>, <code>V</code>/<code>F</code>, <code>1</code>/<code>0</code><br />
+                La explicación (3.ª columna) es opcional y se muestra al responder mal.
               </p>
               <input ref={csvInputRef} type="file" accept=".csv,text/csv" style={{ display: 'none' }} onChange={handleCsvImport} />
               <button className="vf-btn-import" type="button" onClick={() => csvInputRef.current?.click()}>
@@ -359,12 +378,13 @@ export default function VerdaderoFalso() {
           {tabImport === 'json' && (
             <div className="vf-import-body">
               <p className="vf-import-hint">
-                Pegá un array JSON: <code>{`[{"pregunta":"...", "respuesta": true}, ...]`}</code>
+                Pegá un array JSON: <code>{`[{"pregunta":"...", "respuesta": true, "explicacion": "..."}]`}</code><br />
+                El campo <code>explicacion</code> es opcional.
               </p>
               <textarea
                 className="vf-json-textarea"
                 rows={5}
-                placeholder={'[\n  { "pregunta": "El agua hierve a 100°C", "respuesta": true },\n  { "pregunta": "La Tierra es plana", "respuesta": false }\n]'}
+                placeholder={'[\n  { "pregunta": "El agua hierve a 100°C", "respuesta": true, "explicacion": "Al nivel del mar, sí." },\n  { "pregunta": "La Tierra es plana", "respuesta": false }\n]'}
                 value={jsonTexto}
                 onChange={e => setJsonTexto(e.target.value)}
               />
@@ -404,6 +424,11 @@ export default function VerdaderoFalso() {
                     <span className={`vf-detalle-resp${preg.respuesta ? ' vf-detalle-v' : ' vf-detalle-f'}`}>
                       {preg.respuesta ? '✔ Verdadero' : '✘ Falso'}
                     </span>
+                    {preg.explicacion && (
+                      <p className="vf-detalle-explicacion">
+                        <span className="vf-detalle-explicacion-label">💬 Explicación:</span> {preg.explicacion}
+                      </p>
+                    )}
                   </div>
                 )}
 

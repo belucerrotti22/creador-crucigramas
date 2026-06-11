@@ -125,7 +125,7 @@ export function decodeCuestionarioDeJuego(encoded) {
 export function encodeVFParaJuego({ nombre, preguntas }) {
   return b64encode({
     n: nombre || 'Verdadero o Falso',
-    q: preguntas.map(p => ({ p: p.pregunta, r: p.respuesta ? 1 : 0 })),
+    q: preguntas.map(p => ({ p: p.pregunta, r: p.respuesta ? 1 : 0, e: p.explicacion || '' })),
   })
 }
 
@@ -134,7 +134,7 @@ export function decodeVFDeJuego(encoded) {
     const payload = b64decode(encoded)
     return {
       nombre: payload.n,
-      preguntas: payload.q.map(p => ({ pregunta: p.p, respuesta: p.r === 1 })),
+      preguntas: payload.q.map(p => ({ pregunta: p.p, respuesta: p.r === 1, explicacion: p.e || '' })),
     }
   } catch {
     return null
