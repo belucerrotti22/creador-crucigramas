@@ -313,6 +313,17 @@ export default function Cuestionario() {
     })
   }
 
+  const handleHacerCuestionario = () => {
+    if (preguntas.length === 0) {
+      setErrorLink('Agregá al menos una pregunta antes de hacer el cuestionario')
+      return
+    }
+    setErrorLink('')
+    const encoded = encodeCuestionarioParaJuego({ nombre, preguntas })
+    const url = `${window.location.origin}${window.location.pathname}#cuestionario=${encoded}`
+    window.open(url, '_blank')
+  }
+
   return (
     <>
     <div className="cuest-wrapper">
@@ -464,6 +475,9 @@ export default function Cuestionario() {
               {errorLink && <p className="cuest-error">{errorLink}</p>}
               <button className="cuest-btn-link" onClick={handleCopiarLink}>
                 {linkCopiado ? '✅ ¡Link copiado!' : '🔗 Generar y copiar link del cuestionario'}
+              </button>
+              <button className="cuest-btn-hacer" onClick={handleHacerCuestionario}>
+                ▶ Hacer cuestionario
               </button>
               <button className="cuest-btn-guardar" onClick={handleGuardar}>
                 {cuestionarioActualId ? '💾 Guardar cambios' : '💾 Guardar cuestionario'}
