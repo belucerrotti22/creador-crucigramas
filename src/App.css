@@ -7,6 +7,12 @@
   top: 0;
   z-index: 100;
   padding: 0 24px;
+  overflow-x: auto;
+  /* evita que el scroll horizontal del nav arrastre la página */
+  overscroll-behavior-x: contain;
+  /* ocultar scrollbar pero mantener funcionalidad */
+  scrollbar-width: none;
+  &::-webkit-scrollbar { display: none; }
 }
 
 .app-tab {
