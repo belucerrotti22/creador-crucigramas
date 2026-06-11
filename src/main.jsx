@@ -6,7 +6,8 @@ import JuegoCrucigrama from './JuegoCrucigrama.jsx'
 import JuegoWordle from './JuegoWordle.jsx'
 import JuegoHangman from './JuegoHangman.jsx'
 import JuegoCuestionario from './JuegoCuestionario.jsx'
-import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego } from './juego.js'
+import JuegoVerdaderoFalso from './JuegoVerdaderoFalso.jsx'
+import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego, decodeVFDeJuego } from './juego.js'
 
 // Lee un parámetro del hash (#key=valor) con fallback al query string para links viejos
 function getParam(key) {
@@ -22,11 +23,13 @@ const encodedCrucigrama   = getParam('jugar')
 const encodedWordle       = getParam('wordle')
 const encodedAhorcado     = getParam('ahorcado')
 const encodedCuestionario = getParam('cuestionario')
+const encodedVF           = getParam('vf')
 
 const datosCrucigrama   = encodedCrucigrama   ? decodeCrucigramaDeJuego(encodedCrucigrama)       : null
 const datosWordle       = encodedWordle       ? decodeWordleDeJuego(encodedWordle)               : null
 const datosAhorcado     = encodedAhorcado     ? decodeAhorcadoDeJuego(encodedAhorcado)           : null
 const datosCuestionario = encodedCuestionario ? decodeCuestionarioDeJuego(encodedCuestionario)   : null
+const datosVF           = encodedVF           ? decodeVFDeJuego(encodedVF)                       : null
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -57,6 +60,11 @@ createRoot(document.getElementById('root')).render(
       <JuegoCuestionario
         nombre={datosCuestionario.nombre}
         preguntas={datosCuestionario.preguntas}
+      />
+    ) : datosVF ? (
+      <JuegoVerdaderoFalso
+        nombre={datosVF.nombre}
+        preguntas={datosVF.preguntas}
       />
     ) : (
       <App />

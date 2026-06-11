@@ -75,3 +75,7 @@ export function useSopasGuardadas() {
 export function useCuestionariosGuardados() {
   return useItemsGuardados('cuestionarios_guardados', 'Cuestionario')
 }
+
+export function useVFGuardados() {
+  return useItemsGuardados('vf_guardados', 'Verdadero o Falso')
+}
