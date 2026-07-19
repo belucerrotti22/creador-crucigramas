@@ -85,7 +85,7 @@ export default function JuegoVerdaderoFalso({ nombre, preguntas }) {
                       </>
                     )}
                   </div>
-                  {!correcta && preg.explicacion && (
+                  {preg.explicacion && (
                     <p className="jvf-repaso-explicacion">
                       <span className="jvf-repaso-explicacion-label">💬</span> {preg.explicacion}
                     </p>
@@ -182,11 +182,13 @@ export default function JuegoVerdaderoFalso({ nombre, preguntas }) {
                   </div>
                 )}
 
-                {conf && incorrecta && (
-                  <div className="jvf-feedback-incorrecto">
-                    <p className="jvf-feedback-texto">
-                      La respuesta correcta es <strong>{preg.respuesta ? 'Verdadero' : 'Falso'}</strong>.
-                    </p>
+                {conf && (incorrecta || preg.explicacion) && (
+                  <div className={incorrecta ? 'jvf-feedback-incorrecto' : 'jvf-feedback-correcto'}>
+                    {incorrecta && (
+                      <p className="jvf-feedback-texto">
+                        La respuesta correcta es <strong>{preg.respuesta ? 'Verdadero' : 'Falso'}</strong>.
+                      </p>
+                    )}
                     {preg.explicacion && (
                       <p className="jvf-feedback-explicacion">
                         <span className="jvf-feedback-explicacion-label">💬</span> {preg.explicacion}
