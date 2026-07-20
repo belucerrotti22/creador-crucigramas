@@ -2,67 +2,174 @@ import { useState } from 'react'
 import './JuegoFlashcards.css'
 
 /**
+ * Pesos por calificación: cuántas veces aparece la tarjeta en la siguiente ronda.
+ * ★5 = dominada → no aparece.
+ */
+const WEIGHTS = { 1: 4, 2: 3, 3: 2, 4: 1, 5: 0 }
+
+const RATING_LABELS = {
+  1: 'No la recuerdo',
+  2: 'Apenas',
+  3: 'A medias',
+  4: 'Casi bien',
+  5: '¡La domino!',
+}
+
+function shuffle(arr) {
+  const a = [...arr]
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1))
+    ;[a[i], a[j]] = [a[j], a[i]]
+  }
+  return a
+}
+
+/** Construye el mazo ponderado para la siguiente ronda. */
+function buildWeightedDeck(ratings, total) {
+  const pool = []
+  for (let i = 0; i < total; i++) {
+    const r = ratings[i]
+    if (!r) continue
+    const w = WEIGHTS[r] ?? 0
+    for (let j = 0; j < w; j++) pool.push(i)
+  }
+  return shuffle(pool)
+}
+
+/** Cuántas apariciones habrá en el próximo mazo (sin construirlo). */
+function calcNextDeckSize(ratings, total) {
+  let size = 0
+  for (let i = 0; i < total; i++) {
+    const r = ratings[i]
+    if (r) size += WEIGHTS[r] ?? 0
+  }
+  return size
+}
+
+/**
  * Props:
  *   nombre: string
  *   tarjetas: Array<{ frente: string, reverso: string }>
  */
 export default function JuegoFlashcards({ nombre, tarjetas }) {
-  const [indice, setIndice] = useState(0)
+  const total = tarjetas.length
+
+  // ratings: { originalIdx: 1-5 } — siempre la calificación MÁS RECIENTE de cada tarjeta
+  const [ratings, setRatings] = useState({})
+  // deck: array de índices originales (con repeticiones en rondas 2+)
+  const [deck, setDeck] = useState(() => shuffle(tarjetas.map((_, i) => i)))
+  const [deckPos, setDeckPos] = useState(0)
+  const [roundNum, setRoundNum] = useState(1)
+  const [roundDone, setRoundDone] = useState(false)
+  const [finished, setFinished] = useState(false)
   const [volteada, setVolteada] = useState(false)
-  const [sabe, setSabe] = useState(new Set())       // índices que el usuario marcó "Lo sé"
-  const [repasar, setRepasar] = useState(new Set())  // índices que el usuario marcó "Repasar"
-  const [finalizado, setFinalizado] = useState(false)
-  const [orden, setOrden] = useState(() => tarjetas.map((_, i) => i)) // orden actual
 
-  const total = orden.length
-  const tarjetaActual = tarjetas[orden[indice]]
+  const currentCardIdx = deck[deckPos]
+  const currentCard = tarjetas[currentCardIdx]
 
-  const handleVoltear = () => setVolteada(v => !v)
-
-  const avanzar = (accion) => {
-    const idx = orden[indice]
-    if (accion === 'sabe') {
-      setSabe(prev => new Set([...prev, idx]))
-      setRepasar(prev => { const s = new Set(prev); s.delete(idx); return s })
-    } else {
-      setRepasar(prev => new Set([...prev, idx]))
-      setSabe(prev => { const s = new Set(prev); s.delete(idx); return s })
-    }
-
+  // ── Calificar tarjeta actual ──
+  const handleRate = (score) => {
+    const newRatings = { ...ratings, [currentCardIdx]: score }
+    setRatings(newRatings)
     setVolteada(false)
-    if (indice + 1 >= total) {
-      setFinalizado(true)
+    if (deckPos + 1 >= deck.length) {
+      setRoundDone(true)
     } else {
-      setIndice(i => i + 1)
+      setDeckPos(pos => pos + 1)
     }
   }
 
-  const handleReiniciarTodas = () => {
-    setOrden(tarjetas.map((_, i) => i))
-    setIndice(0)
+  // ── Iniciar siguiente ronda ──
+  const handleNextRound = () => {
+    const nextDeck = buildWeightedDeck(ratings, total)
+    setDeck(nextDeck)
+    setDeckPos(0)
+    setRoundNum(r => r + 1)
+    setRoundDone(false)
     setVolteada(false)
-    setSabe(new Set())
-    setRepasar(new Set())
-    setFinalizado(false)
   }
 
-  const handleRepasarMarcadas = () => {
-    const aRepasar = [...repasar]
-    if (aRepasar.length === 0) return
-    setOrden(aRepasar)
-    setIndice(0)
+  const handleFinish = () => setFinished(true)
+
+  const handleReiniciar = () => {
+    setRatings({})
+    setDeck(shuffle(tarjetas.map((_, i) => i)))
+    setDeckPos(0)
+    setRoundNum(1)
+    setRoundDone(false)
+    setFinished(false)
     setVolteada(false)
-    setSabe(new Set())
-    setRepasar(new Set())
-    setFinalizado(false)
   }
 
-  // ── Pantalla final ──
-  if (finalizado) {
-    const cantSabe = sabe.size
-    const cantRepasar = repasar.size
-    const porcentaje = Math.round((cantSabe / tarjetas.length) * 100)
-    const emoji = porcentaje === 100 ? '🏆' : porcentaje >= 70 ? '🎉' : porcentaje >= 40 ? '😅' : '📚'
+  // ════════════════════════════════════════════════════════════
+  // Pantalla entre rondas
+  // ════════════════════════════════════════════════════════════
+  if (roundDone && !finished) {
+    const masteredCount = Object.values(ratings).filter(v => v === 5).length
+    const toRepeatCount = total - masteredCount
+    const nextDeckSize = calcNextDeckSize(ratings, total)
+    const allMastered = toRepeatCount === 0
+
+    const dist = [5, 4, 3, 2, 1]
+      .map(r => ({ rating: r, count: Object.values(ratings).filter(v => v === r).length }))
+      .filter(d => d.count > 0)
+
+    return (
+      <div className="jfc-wrapper">
+        <div className="jfc-card">
+          <div className="jfc-titulo-wrapper">
+            <h1 className="jfc-titulo">{nombre || 'Flashcards'}</h1>
+            <p className="jfc-round-done-badge">Ronda {roundNum} completada ✓</p>
+          </div>
+
+          <div className="jfc-between-card">
+            <p className="jfc-between-titulo">Tus calificaciones</p>
+            <div className="jfc-dist-summary">
+              {dist.map(({ rating, count }) => (
+                <div key={rating} className={`jfc-dist-row jfc-dist-r${rating}`}>
+                  <span className="jfc-dist-stars">
+                    {'★'.repeat(rating)}{'☆'.repeat(5 - rating)}
+                  </span>
+                  <span className="jfc-dist-count">{count} tarjeta{count !== 1 ? 's' : ''}</span>
+                  <span className="jfc-dist-label">{RATING_LABELS[rating]}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {allMastered ? (
+            <div className="jfc-all-mastered-msg">
+              <p className="jfc-all-mastered-emoji">🏆</p>
+              <p className="jfc-all-mastered-texto">¡Dominás todas las tarjetas!</p>
+              <button className="jfc-btn-reiniciar" onClick={handleReiniciar}>
+                🔄 Empezar de nuevo
+              </button>
+            </div>
+          ) : (
+            <>
+
+              <div className="jfc-between-acciones">
+                <button className="jfc-btn-siguiente-ronda" onClick={handleNextRound}>
+                  ▶ Comenzar Ronda {roundNum + 1}
+                </button>
+                <button className="jfc-btn-terminar-ya" onClick={handleFinish}>
+                  Terminar y ver resumen
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      </div>
+    )
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // Pantalla final
+  // ════════════════════════════════════════════════════════════
+  if (finished) {
+    const masteredCount = Object.values(ratings).filter(v => v === 5).length
+    const porcentaje = total > 0 ? Math.round((masteredCount / total) * 100) : 0
+    const emoji = porcentaje === 100 ? '🏆' : porcentaje >= 70 ? '🎉' : porcentaje >= 40 ? '📚' : '💪'
 
     return (
       <div className="jfc-wrapper">
@@ -73,30 +180,31 @@ export default function JuegoFlashcards({ nombre, tarjetas }) {
 
           <div className="jfc-resultado-final">
             <div className="jfc-resultado-emoji">{emoji}</div>
+            <p className="jfc-resultado-rondas">{roundNum} ronda{roundNum !== 1 ? 's' : ''} completada{roundNum !== 1 ? 's' : ''}</p>
             <div className="jfc-resultado-stats">
               <div className="jfc-stat jfc-stat-sabe">
-                <span className="jfc-stat-num">{cantSabe}</span>
-                <span className="jfc-stat-label">Lo sé ✅</span>
+                <span className="jfc-stat-num">{masteredCount}</span>
+                <span className="jfc-stat-label">Dominadas ⭐</span>
               </div>
               <div className="jfc-stat jfc-stat-repasar">
-                <span className="jfc-stat-num">{cantRepasar}</span>
-                <span className="jfc-stat-label">A repasar 🔁</span>
+                <span className="jfc-stat-num">{total - masteredCount}</span>
+                <span className="jfc-stat-label">Para repasar</span>
               </div>
             </div>
             <p className="jfc-resultado-porcentaje">{porcentaje}% dominado</p>
           </div>
 
-          {/* Repaso */}
           <div className="jfc-repaso">
-            <p className="jfc-repaso-titulo">Repaso de tarjetas</p>
+            <p className="jfc-repaso-titulo">Resumen por tarjeta</p>
             {tarjetas.map((t, i) => {
-              const enSabe = sabe.has(i)
-              const enRepasar = repasar.has(i)
+              const r = ratings[i]
               return (
-                <div key={i} className={`jfc-repaso-item${enSabe ? ' jfc-repaso-ok' : enRepasar ? ' jfc-repaso-mal' : ''}`}>
+                <div key={i} className={`jfc-repaso-item jfc-repaso-r${r ?? 0}`}>
                   <div className="jfc-repaso-header">
-                    <span className="jfc-repaso-icon">{enSabe ? '✅' : '🔁'}</span>
-                    <span className="jfc-repaso-frente">{i + 1}. {t.frente}</span>
+                    <span className="jfc-repaso-rating-stars">
+                      {r ? '★'.repeat(r) + '☆'.repeat(5 - r) : '—'}
+                    </span>
+                    <span className="jfc-repaso-frente">{t.frente}</span>
                   </div>
                   <div className="jfc-repaso-reverso">{t.reverso}</div>
                 </div>
@@ -104,73 +212,79 @@ export default function JuegoFlashcards({ nombre, tarjetas }) {
             })}
           </div>
 
-          <div className="jfc-botones-finales">
-            {cantRepasar > 0 && (
-              <button className="jfc-btn-repasar" onClick={handleRepasarMarcadas}>
-                🔁 Repasar las {cantRepasar} marcadas
-              </button>
-            )}
-            <button className="jfc-btn-reiniciar" onClick={handleReiniciarTodas}>
-              🔄 Empezar de nuevo
-            </button>
-          </div>
+          <button className="jfc-btn-reiniciar" onClick={handleReiniciar}>
+            🔄 Empezar de nuevo
+          </button>
         </div>
       </div>
     )
   }
 
-  // ── Pantalla de juego ──
+  // ════════════════════════════════════════════════════════════
+  // Pantalla de juego
+  // ════════════════════════════════════════════════════════════
   return (
     <div className="jfc-wrapper">
       <div className="jfc-card">
         <div className="jfc-titulo-wrapper">
           <h1 className="jfc-titulo">{nombre || 'Flashcards'}</h1>
-          <p className="jfc-progreso-text">
-            {indice + 1} de {total}
-          </p>
+          <div className="jfc-progress-row">
+            <span className="jfc-round-label">Ronda {roundNum}</span>
+            <span className="jfc-progreso-text">{deckPos + 1} / {deck.length}</span>
+          </div>
           <div className="jfc-barra-progreso">
-            <div
-              className="jfc-barra-fill"
-              style={{ width: `${((indice) / total) * 100}%` }}
-            />
+            <div className="jfc-barra-fill" style={{ width: `${(deckPos / deck.length) * 100}%` }} />
           </div>
         </div>
 
         {/* Tarjeta con flip */}
-        <div className={`jfc-flip-container${volteada ? ' jfc-flipped' : ''}`} onClick={handleVoltear}>
+        <div
+          className={`jfc-flip-container${volteada ? ' jfc-flipped' : ''}`}
+          onClick={() => setVolteada(v => !v)}
+        >
           <div className="jfc-flip-inner">
             <div className="jfc-cara jfc-cara-frente">
               <span className="jfc-cara-label">Frente</span>
-              <p className="jfc-cara-texto">{tarjetaActual.frente}</p>
+              <p className="jfc-cara-texto">{currentCard.frente}</p>
               <span className="jfc-tap-hint">Tocá para ver el reverso →</span>
             </div>
             <div className="jfc-cara jfc-cara-reverso">
               <span className="jfc-cara-label">Reverso</span>
-              <p className="jfc-cara-texto">{tarjetaActual.reverso}</p>
+              <p className="jfc-cara-texto">{currentCard.reverso}</p>
               <span className="jfc-tap-hint">Tocá para volver al frente ←</span>
             </div>
           </div>
         </div>
 
-        {/* Botones de acción */}
-        <div className="jfc-acciones">
+        {/* Antes de voltear: botón para ver respuesta */}
+        {!volteada ? (
           <button
-            className="jfc-btn-repasar-accion"
-            onClick={() => avanzar('repasar')}
+            className="jfc-btn-ver-respuesta"
+            onClick={() => setVolteada(true)}
             type="button"
           >
-            🔁 A repasar
+            Ver respuesta
           </button>
-          <button
-            className="jfc-btn-sabe"
-            onClick={() => avanzar('sabe')}
-            type="button"
-          >
-            ✅ Lo sé
-          </button>
-        </div>
-
-        <p className="jfc-hint-voltear">Tocá la tarjeta para verla del otro lado</p>
+        ) : (
+          /* Después de voltear: escala 1-5 */
+          <div className="jfc-rating-panel">
+            <p className="jfc-rating-pregunta">¿Qué tan bien la sabías?</p>
+            <div className="jfc-rating-buttons">
+              {[1, 2, 3, 4, 5].map(n => (
+                <button
+                  key={n}
+                  className={`jfc-rating-btn jfc-rating-btn-${n}`}
+                  onClick={() => handleRate(n)}
+                  type="button"
+                >
+                  <span className="jfc-rating-num">{n}</span>
+                  <span className="jfc-rating-stars-mini">{'★'.repeat(n)}</span>
+                  <span className="jfc-rating-desc">{RATING_LABELS[n]}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )
