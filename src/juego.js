@@ -140,3 +140,24 @@ export function decodeVFDeJuego(encoded) {
     return null
   }
 }
+
+// ── Flashcards ────────────────────────────────────────────────────
+
+export function encodeFlashcardsParaJuego({ nombre, tarjetas }) {
+  return b64encode({
+    n: nombre || 'Flashcards',
+    t: tarjetas.map(t => ({ f: t.frente, r: t.reverso })),
+  })
+}
+
+export function decodeFlashcardsDeJuego(encoded) {
+  try {
+    const payload = b64decode(encoded)
+    return {
+      nombre: payload.n,
+      tarjetas: payload.t.map(t => ({ frente: t.f, reverso: t.r })),
+    }
+  } catch {
+    return null
+  }
+}

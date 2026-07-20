@@ -7,7 +7,8 @@ import JuegoWordle from './JuegoWordle.jsx'
 import JuegoHangman from './JuegoHangman.jsx'
 import JuegoCuestionario from './JuegoCuestionario.jsx'
 import JuegoVerdaderoFalso from './JuegoVerdaderoFalso.jsx'
-import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego, decodeVFDeJuego } from './juego.js'
+import JuegoFlashcards from './JuegoFlashcards.jsx'
+import { decodeCrucigramaDeJuego, decodeWordleDeJuego, decodeAhorcadoDeJuego, decodeCuestionarioDeJuego, decodeVFDeJuego, decodeFlashcardsDeJuego } from './juego.js'
 
 // Lee un parámetro del hash (#key=valor) con fallback al query string para links viejos
 function getParam(key) {
@@ -24,12 +25,14 @@ const encodedWordle       = getParam('wordle')
 const encodedAhorcado     = getParam('ahorcado')
 const encodedCuestionario = getParam('cuestionario')
 const encodedVF           = getParam('vf')
+const encodedFlashcards   = getParam('flashcards')
 
-const datosCrucigrama   = encodedCrucigrama   ? decodeCrucigramaDeJuego(encodedCrucigrama)       : null
-const datosWordle       = encodedWordle       ? decodeWordleDeJuego(encodedWordle)               : null
-const datosAhorcado     = encodedAhorcado     ? decodeAhorcadoDeJuego(encodedAhorcado)           : null
-const datosCuestionario = encodedCuestionario ? decodeCuestionarioDeJuego(encodedCuestionario)   : null
-const datosVF           = encodedVF           ? decodeVFDeJuego(encodedVF)                       : null
+const datosCrucigrama   = encodedCrucigrama   ? decodeCrucigramaDeJuego(encodedCrucigrama)         : null
+const datosWordle       = encodedWordle       ? decodeWordleDeJuego(encodedWordle)                 : null
+const datosAhorcado     = encodedAhorcado     ? decodeAhorcadoDeJuego(encodedAhorcado)             : null
+const datosCuestionario = encodedCuestionario ? decodeCuestionarioDeJuego(encodedCuestionario)     : null
+const datosVF           = encodedVF           ? decodeVFDeJuego(encodedVF)                         : null
+const datosFlashcards   = encodedFlashcards   ? decodeFlashcardsDeJuego(encodedFlashcards)         : null
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
@@ -65,6 +68,11 @@ createRoot(document.getElementById('root')).render(
       <JuegoVerdaderoFalso
         nombre={datosVF.nombre}
         preguntas={datosVF.preguntas}
+      />
+    ) : datosFlashcards ? (
+      <JuegoFlashcards
+        nombre={datosFlashcards.nombre}
+        tarjetas={datosFlashcards.tarjetas}
       />
     ) : (
       <App />

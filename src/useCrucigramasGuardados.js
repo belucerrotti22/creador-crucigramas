@@ -79,3 +79,7 @@ export function useCuestionariosGuardados() {
 export function useVFGuardados() {
   return useItemsGuardados('vf_guardados', 'Verdadero o Falso')
 }
+
+export function useFlashcardsGuardados() {
+  return useItemsGuardados('flashcards_guardados', 'Flashcards')
+}

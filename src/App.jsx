@@ -8,9 +8,10 @@ import Wordle from './Wordle'
 import Hangman from './Hangman'
 import Cuestionario from './Cuestionario'
 import VerdaderoFalso from './VerdaderoFalso'
+import Flashcards from './Flashcards'
 import './App.css'
 
-const TABS = ['crucigrama', 'sopa', 'wordle', 'hangman', 'cuestionario', 'vf']
+const TABS = ['crucigrama', 'sopa', 'wordle', 'hangman', 'cuestionario', 'vf', 'flashcards']
 
 function tabFromHash() {
   const hash = window.location.hash.slice(1)
@@ -246,6 +247,12 @@ function App() {
       >
         ✔✘ Verdadero o Falso
       </button>
+      <button
+        className={`app-tab${tab === 'flashcards' ? ' app-tab-activa' : ''}`}
+        onClick={() => navegarTab('flashcards')}
+      >
+        🃏 Flashcards
+      </button>
     </div>
 
     {tab === 'sopa' && <SopaLetras />}
@@ -253,6 +260,7 @@ function App() {
     {tab === 'hangman' && <Hangman />}
     {tab === 'cuestionario' && <Cuestionario />}
     {tab === 'vf' && <VerdaderoFalso />}
+    {tab === 'flashcards' && <Flashcards />}
 
     {tab === 'crucigrama' && (
     <div className="app-wrapper">
